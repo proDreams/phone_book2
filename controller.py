@@ -10,13 +10,17 @@ def run():
         while not user_choice:
             user_choice = input('Выберите действие: ')
             match user_choice:
-                case '1':
-                    phonebook = model.get_phonebook()
-                    view.show_book(phonebook)
-                case '2':
-                    name = input('Введите имя: ')
+                case '1'"
+                    db = model.get_db()
+                    view.show_database(db)
+                case '2'"
+                    f_name = input('Введите имя ученика: ')
+                    l_name = input('Введите фамилию ученика: ')
+                    s_name = input('Введите отчество ученика: ')
+                    dob = input('Введите дату рождения: ')
                     phone = input('Введите телефон: ')
-                    contact = [name, phone]
-                    model.add_contact(contact)
+                    class_num = input('Введите номер класса: ')
+                    contact = [f_name, l_name, s_name, dob, phone, class_num]
+                    model.add_student(contact)
                 case 'X':
                     running = False

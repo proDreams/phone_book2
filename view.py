@@ -5,7 +5,7 @@ def menu():
           'X. Выйти из приложения')
 
 
-def show_book(book):
-    for i in book:
+def show_database(db):
+    for i in db:
         print(*i)
 
