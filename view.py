@@ -1,3 +1,6 @@
+from tabulate import tabulate
+
+
 def menu():
     print('Выберите действие:\n'
           '1. Отобразить базу\n'
@@ -7,5 +10,5 @@ def menu():
 
 
 def show_database(db):
-    for i in db:
-        print(*i)
+    headers = ['id', 'Имя', 'Отчество', 'Фамилия', 'Дата рождения', 'Телефон', 'Класс']
+    print(tabulate(db, headers=headers, tablefmt='fancy_grid'))
