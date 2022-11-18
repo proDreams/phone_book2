@@ -10,10 +10,10 @@ def run():
         while not user_choice:
             user_choice = input('Выберите действие: ')
             match user_choice:
-                case '1'"
+                case '1':
                     db = model.get_db()
                     view.show_database(db)
-                case '2'"
+                case '2':
                     f_name = input('Введите имя ученика: ')
                     l_name = input('Введите фамилию ученика: ')
                     s_name = input('Введите отчество ученика: ')
