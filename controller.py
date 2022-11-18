@@ -14,14 +14,14 @@ def run():
                     db = model.get_db()
                     view.show_database(db)
                 case '2':
-                    id = input('Введите id ученика: ')
+                    s_id = input('Введите id ученика: ')
                     f_name = input('Введите имя ученика: ')
                     l_name = input('Введите фамилию ученика: ')
                     s_name = input('Введите отчество ученика: ')
                     dob = input('Введите дату рождения: ')
                     phone = input('Введите телефон: ')
                     class_num = input('Введите номер класса: ')
-                    contact = [id, f_name, l_name, s_name, dob, phone, class_num]
+                    contact = [s_id, f_name, l_name, s_name, dob, phone, class_num]
                     model.add_student(contact)
                 case 'X':
                     running = False
