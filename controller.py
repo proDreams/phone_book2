@@ -23,5 +23,8 @@ def run():
                     class_num = input('Введите номер класса: ')
                     contact = [s_id, f_name, l_name, s_name, dob, phone, class_num]
                     model.add_student(contact)
+                case '3':
+                    find_id = input('Введите id ученика для удаления: ')
+                    model.remove_student(find_id)
                 case 'X':
                     running = False
