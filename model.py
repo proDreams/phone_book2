@@ -48,8 +48,8 @@ def check_file_exist(file_name):
     """
     Проверяет наличие файла по указанному пути
     """
-    if not path.exists(file_name):
-        if user_inputs.ask_fill_input(0):
+    if not path.exists(f'{file_name}.db'):
+        if user_inputs.ask_fill_input(0, file_name):
             create_db(file_name)
             return True
         else:
@@ -65,11 +65,7 @@ def check_table_exist(file_name):
     check = cur.fetchall()
     db.close()
     if not check:
-        if user_inputs.ask_fill_input():
-            create_db(file_name)
-            user_interface.print_notifications(0)
-            return True
-        else:
-            return False
-    else:
-        return True
+        user_interface.print_errors(1)
+        create_db(file_name)
+        user_interface.print_notifications(0)
+    return True

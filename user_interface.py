@@ -1,9 +1,10 @@
 from tabulate import tabulate
 
-ERRORS = {0: 'База не найдена.\n'
-             'Создать?',
-          1: 'База не заполнена.\n'
-             'Заполнить?',
+ERRORS = {0: 'База {0}.db не найдена.\n'
+             'Создать Д/Н?\n'
+             '-: ',
+          1: 'База {0}.db не заполнена.\n'
+             'Заполняем базу...',
           2: 'Неверный ввод.'}
 
 NOTIFICATIONS = {0: 'База успешно записана в файл.'}
@@ -18,11 +19,25 @@ def menu():
 
 
 def choice_file_print():
-    print('- Введите название база или путь к файлу с базой\n'
-          '- Или нажмите "Enter" для базы по умолчанию.\n')
+    return '''
+Введите название база или путь к файлу с базой.
+Или нажмите "Enter" для базы по умолчанию - school.db
+-: '''
 
 
-def errors(code):
+def new_line():
+    print()
+
+
+def hello_message():
+    print('Добро пожаловать в менеджер баз данных!')
+
+
+def errors(code, file_name):
+    return ERRORS[code].format(file_name)
+
+
+def print_errors(code):
     print(ERRORS[code])
 
 

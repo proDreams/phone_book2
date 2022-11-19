@@ -8,10 +8,11 @@ FILEPATH = ''
 def run():
     running = True
     while running:
+        user_interface.new_line()
         user_interface.menu()
         user_choice = ''
         while not user_choice:
-            user_choice = input('Выберите действие: ')
+            user_choice = input('-: ').lower()
             match user_choice:
                 case '1':
                     db = model.get_db(FILEPATH)
@@ -28,12 +29,13 @@ def run():
                 case '3':
                     find_id = input('Введите id ученика для удаления: ')
                     model.remove_student(find_id, FILEPATH)
-                case 'X':
+                case 'x':
                     running = False
 
 
 def start():
     global FILEPATH
+    user_interface.hello_message()
     while True:
         FILEPATH = user_inputs.choice_file_input()
         if FILEPATH == '':
