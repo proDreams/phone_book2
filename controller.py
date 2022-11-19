@@ -18,17 +18,15 @@ def run():
                     db = model.get_db(FILEPATH)
                     user_interface.show_database(db)
                 case '2':
-                    f_name = input('Введите имя ученика: ')
-                    l_name = input('Введите отчество ученика: ')
-                    s_name = input('Введите фамилию ученика: ')
-                    dob = input('Введите дату рождения: ')
-                    phone = input('Введите телефон: ')
-                    class_num = input('Введите номер класса: ')
-                    contact = [f_name, l_name, s_name, dob, phone, class_num]
+                    contact = user_inputs.get_student_input()
                     model.add_student(contact, FILEPATH)
                 case '3':
                     find_id = input('Введите id ученика для удаления: ')
                     model.remove_student(find_id, FILEPATH)
+                case '4':
+                    user_interface.search_menu()
+                    search_choice = input('-: ').lower()
+
                 case 'x':
                     running = False
 

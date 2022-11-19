@@ -17,3 +17,12 @@ def ask_fill_input(code, file_name):
     else:
         user_interface.print_errors(2)
         return False
+
+def get_student_input():
+    f_name = input('Введите имя ученика: ')
+    patr = input('Введите отчество ученика: ')
+    s_name = input('Введите фамилию ученика: ')
+    dob = input('Введите дату рождения: ')
+    phone = input('Введите телефон: ')
+    class_num = input('Введите номер класса: ')
+    return [f_name, patr, s_name, dob, phone, class_num]

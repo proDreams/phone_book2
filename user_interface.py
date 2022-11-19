@@ -15,6 +15,7 @@ def menu():
           '1. Отобразить базу\n'
           '2. Добавить запись в базу\n'
           '3. Удалить запись из базы\n'
+          '4. Найти запись в базе\n'
           'X. Выйти из приложения')
 
 
@@ -48,3 +49,5 @@ def show_database(db):
 
 def print_notifications(code):
     print(NOTIFICATIONS[code])
+
+def search_menu
