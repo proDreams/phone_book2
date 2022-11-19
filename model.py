@@ -1,8 +1,8 @@
-import sqlite3
+import sqlite3 as sl
 
 
 def get_db():
-    db = sqlite3.connect('student.db')
+    db = sl.connect('school.db')
     cur = db.cursor()
     cur.execute("SELECT * FROM students")
     rows = cur.fetchall()
@@ -12,7 +12,7 @@ def get_db():
 
 
 def add_student(contact):
-    db = sqlite3.connect('student.db')
+    db = sl.connect('school.db')
     db.execute('CREATE TABLE IF NOT EXISTS {}('
                'student_id INTEGER PRIMARY KEY, '
                'name TEXT NOT NULL, '
@@ -28,7 +28,7 @@ def add_student(contact):
 
 
 def remove_student(id):
-    db = sqlite3.connect('student.db')
+    db = sl.connect('school.db')
     cur = db.cursor()
     cur.execute(f"DELETE FROM students WHERE student_id={id}")
     db.commit()
