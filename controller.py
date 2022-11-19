@@ -1,18 +1,18 @@
-import view
+import user_interface
 import model
 
 
 def run():
     running = True
     while running:
-        view.menu()
+        user_interface.menu()
         user_choice = ''
         while not user_choice:
             user_choice = input('Выберите действие: ')
             match user_choice:
                 case '1':
                     db = model.get_db()
-                    view.show_database(db)
+                    user_interface.show_database(db)
                 case '2':
                     f_name = input('Введите имя ученика: ')
                     l_name = input('Введите отчество ученика: ')

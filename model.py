@@ -27,7 +27,6 @@ def add_student(contact):
     db.close()
 
 
-
 def remove_student(id):
     db = sqlite3.connect('student.db')
     cur = db.cursor()
