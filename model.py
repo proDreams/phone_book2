@@ -28,7 +28,10 @@ def execute_query(con, query, data=None):
     with con:
         try:
             if data:
-                res = con.executemany(query, data)
+                if isinstance(data, list):
+                    res = con.executemany(query, data)
+                elif isinstance(data, tuple):
+                    res = con.execute(query, data)
             else:
                 res = con.execute(query)
             return res
@@ -42,7 +45,7 @@ def create_db(file_name):
     'Создаёт базу данных'
 
     table_name = 'students'
-    sql_query = f'''CREATE TABLE IF NOT EXISTS {table_name}(
+    sql_query = f'''CREATE TABLE IF NOT EXISTS '{table_name}'(
                  student_id INTEGER PRIMARY KEY,
                  name TEXT NOT NULL,
                  patronym TEXT NOT NULL,
@@ -75,8 +78,9 @@ def add_student(contact, file_name):
 def remove_student(s_id, file_name):
     'Удаляет студента'
 
-    sql_query = f"DELETE FROM students WHERE student_id={s_id}"
-    execute_query(db_connect(file_name), sql_query)
+    sql_query = f"DELETE FROM students WHERE student_id=?"
+    data = (str(s_id),)
+    execute_query(db_connect(file_name), sql_query, data)
 
 
 @LOG
@@ -98,7 +102,7 @@ def check_table_exist(file_name, table_name):
     'Проверяет, существует ли таблица в базе'
 
     sql_query = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';"
-    check = execute_query(db_connect(file_name), sql_query)
+    check = execute_query(db_connect(file_name), sql_query).fetchall()
     if not check:
         user_interface.print_errors(1)
         create_db(file_name)
@@ -111,7 +115,6 @@ def search_record(field_ind, query, file_name, compliance=False):
     'Ищет запись в базе по параметру'
 
     field = STUDENT_FIELDS[int(field_ind)-1]
-
     if compliance:
         sql_query = f"SELECT * FROM students WHERE {field}='{query}'; "
     else:
