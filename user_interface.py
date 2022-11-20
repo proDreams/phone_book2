@@ -39,8 +39,8 @@ def errors(code, file_name):
     return ERRORS[code].format(file_name)
 
 
-def print_errors(code):
-    print(ERRORS[code])
+def print_errors(code, file_name):
+    print(ERRORS[code].format(file_name))
 
 
 def show_database(db):
