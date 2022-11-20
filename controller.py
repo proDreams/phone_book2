@@ -87,5 +87,5 @@ def start():
             break
         elif model.check_file_exist(FILEPATH):
             break
-    model.check_table_exist(FILEPATH)
+    model.check_table_exist(FILEPATH, 'students')
     run()
