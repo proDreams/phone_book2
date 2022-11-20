@@ -9,13 +9,15 @@ ERRORS = {0: 'База {0}.db не найдена.\n'
 
 NOTIFICATIONS = {0: 'База успешно записана в файл.'}
 
+STUDENT_HEADERS = ['id', 'Имя', 'Отчество', 'Фамилия', 'Дата рождения', 'Телефон', 'Класс']
+
 
 def menu():
     print('Выберите действие:\n'
           '1. Отобразить базу\n'
           '2. Добавить запись в базу\n'
-          '3. Удалить запись из базы\n'
-          'X. Выйти из приложения')
+          '3. Найти запись в базе\n'
+          '0. Выйти из приложения')
 
 
 def choice_file_print():
@@ -29,8 +31,8 @@ def new_line():
     print()
 
 
-def hello_message():
-    print('Добро пожаловать в менеджер баз данных!')
+def print_message(text):
+    print(f'~~ {text} ~~', end='\n\n')
 
 
 def errors(code, file_name):
@@ -42,9 +44,29 @@ def print_errors(code):
 
 
 def show_database(db):
-    headers = ['id', 'Имя', 'Отчество', 'Фамилия', 'Дата рождения', 'Телефон', 'Класс']
+    headers = STUDENT_HEADERS
     print(tabulate(db, headers=headers, tablefmt='fancy_grid'))
 
 
 def print_notifications(code):
     print(NOTIFICATIONS[code])
+
+
+def fields_menu(text, start=0):
+    fields = f'Выберите поле для {text}\n'
+    for i, field in enumerate(STUDENT_HEADERS[start:]):
+        fields += f'{i + 1}. {field}\n'
+    print(f'{fields}')
+
+
+def change_menu():
+    print('''Введите действие:
+    1. Изменить запись
+    2. Удалить запись
+    0. Выйти в главное меню
+    ''')
+
+
+def show_record(record):
+    result = list(zip(STUDENT_HEADERS, record))
+    print(tabulate(result, tablefmt='fancy_grid'))
