@@ -4,47 +4,62 @@ import user_interface
 import user_inputs
 
 
-STUDENT_FIELDS = ['student_id', 'name', 'patronym', 'surname', 'birthdate', 'phone', 'class']
+STUDENT_FIELDS = ['student_id', 'name', 'patronym',
+                  'surname', 'birthdate', 'phone', 'class']
+
+
+def db_connect(file_name):
+    file = f'{file_name}.db'
+    try:
+        con = sl.connect(file)
+        return con
+    except sl.Error as e:
+        # TODO записать в log вместо консоли перед продакшеном
+        print(f'Ошибка: {e}')
+
+
+def execute_query(con, query, data=None):
+    with con:
+        try:
+            if data:
+                res = con.executemany(query, data)
+            else:
+                res = con.execute(query)
+            return res
+        except sl.Error as e:
+            # TODO записать в log вместо консоли перед продакшеном
+            print(f'Ошибка: {e}')
 
 
 def create_db(file_name):
-    db = sl.connect(f'{file_name}.db')
-    db.execute('CREATE TABLE IF NOT EXISTS {}('
-               'student_id INTEGER PRIMARY KEY, '
-               'name TEXT NOT NULL, '
-               'patronym TEXT NOT NULL, '
-               'surname TEXT NOT NULL, '
-               'birthdate TEXT NOT NULL, '
-               'phone TEXT NOT NULL, '
-               'class TEXT NOT NULL)'.format('students'))
-    db.commit()
-    db.close()
+    table_name = 'students'
+    sql_query = f'''CREATE TABLE IF NOT EXISTS {table_name}(
+                 student_id INTEGER PRIMARY KEY,
+                 name TEXT NOT NULL,
+                 patronym TEXT NOT NULL,
+                 surname TEXT NOT NULL,
+                 birthdate TEXT NOT NULL,
+                 phone TEXT NOT NULL,
+                 class TEXT NOT NULL);'''
+    execute_query(db_connect(file_name), sql_query)
 
 
 def get_db(file_name):
-    db = sl.connect(f'{file_name}.db')
-    cur = db.cursor()
-    cur.execute("SELECT * FROM students")
-    rows = cur.fetchall()
-    db.close()
-    return rows
+    sql_query = "SELECT * FROM students"
+    return execute_query(db_connect(file_name), sql_query)
 
 
 def add_student(contact, file_name):
+    # TODO а может лучше пробовать создавать базу только один раз при запуске?
     create_db(file_name)
-    db = sl.connect(f'{file_name}.db')
-    cur = db.cursor()
-    cur.execute("INSERT INTO students VALUES(NULL, ?, ?, ?, ?, ?, ?)", tuple(value for value in contact))
-    db.commit()
-    db.close()
+    sql_query = "INSERT INTO students VALUES(NULL, ?, ?, ?, ?, ?, ?)"
+    data = [tuple(contact)]
+    return execute_query(db_connect(file_name), sql_query, data)
 
 
 def remove_student(s_id, file_name):
-    db = sl.connect(f'{file_name}.db')
-    cur = db.cursor()
-    cur.execute(f"DELETE FROM students WHERE student_id={s_id}")
-    db.commit()
-    db.close()
+    sql_query = f"DELETE FROM students WHERE student_id={s_id}"
+    execute_query(db_connect(file_name), sql_query)
 
 
 def check_file_exist(file_name):
@@ -64,7 +79,8 @@ def check_file_exist(file_name):
 def check_table_exist(file_name):
     db = sl.connect(f'{file_name}.db')
     cur = db.cursor()
-    cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='students'; ")
+    cur.execute(
+        "SELECT name FROM sqlite_master WHERE type='table' AND name='students'; ")
     check = cur.fetchall()
     db.close()
     if not check:
@@ -79,27 +95,20 @@ def search_record(field_ind, query, file_name, compliance=False):
     Ищет запись в базе по параметру
     """
     field = STUDENT_FIELDS[int(field_ind)-1]
-    db = sl.connect(f'{file_name}.db')
-    cur = db.cursor()
+
     if compliance:
-        cur.execute(f"SELECT * FROM students WHERE {field}='{query}'; ")
+        sql_query = f"SELECT * FROM students WHERE {field}='{query}'; "
     else:
-        cur.execute(f"SELECT * FROM students WHERE {field} LIKE '%{query}%'; ")
-    results = cur.fetchall()
-    db.close()
-    return results
+        sql_query = f"SELECT * FROM students WHERE {field} LIKE '%{query}%'; "
+    return execute_query(db_connect(file_name), sql_query).fetchall()
 
 
 def check_id(r_id, file_name):
     '''
     Проверяет, есть ли запись в введенным id в базе
     '''
-    db = sl.connect(f'{file_name}.db')
-    cur = db.cursor()
-    cur.execute(f"SELECT * FROM students WHERE student_id='{r_id}'; ")
-    results = cur.fetchall()
-    db.close()
-    return results
+    sql_query = f"SELECT * FROM students WHERE student_id='{r_id}'; "
+    return execute_query(db_connect(file_name), sql_query).fetchall()
 
 
 def get_updates(r_id, field_ind, value, file_name):
@@ -116,8 +125,5 @@ def change_field(r_id, field_ind, value, file_name):
     Меняет поле записи
     """
     field = STUDENT_FIELDS[int(field_ind)]
-    db = sl.connect(f'{file_name}.db')
-    cur = db.cursor()
-    cur.execute(f"UPDATE students SET {field} = '{value}' WHERE student_id={r_id}")
-    db.commit()
-    db.close()
+    sql_query = f"UPDATE students SET {field} = '{value}' WHERE student_id={r_id}"
+    execute_query(db_connect(file_name), sql_query)
