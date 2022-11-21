@@ -6,13 +6,15 @@ FILEPATH = ''
 
 
 def choose_table(unified=False):
-    'Позволяет пользователю выбрать таблицу'
+    """
+    Позволяет пользователю выбрать таблицу
+    """
 
     choices = ['1', '2', '3'] if unified else ['1', '2']
     table_choice = ''
     while table_choice not in choices:
         user_interface.print_tables(unified=unified)
-        table_choice = input('-: ')
+        table_choice = input(': ')
         if table_choice not in choices:
             user_interface.print_message('Неверный ввод')
     return model.TABLES[table_choice]
@@ -28,15 +30,13 @@ def run():
 
     for table in ['students', 'classes']:
         if not model.check_table_exist(FILEPATH, table):
-            user_interface.print_errors(1, FILEPATH)
             model.create_table(FILEPATH, table)
-            user_interface.print_notifications(0)
 
     running = True
     while running:
         user_interface.new_line()
         user_interface.menu()
-        user_choice = input('-: ')
+        user_choice = input(': ')
         match user_choice:
             case '1':
                 table = choose_table(unified=True)
@@ -47,7 +47,7 @@ def run():
                 user_interface.print_message('Введите данные')
                 record = user_inputs.get_data_input(table)
                 user_interface.show_record(record, table)
-                if user_inputs.confirm_choice('Внести эту запись?'):
+                if user_inputs.confirm_choice('Внести эту запись Д/Н?'):
                     model.add_record(table, record, FILEPATH)
                     user_interface.print_message('Запись успешно внесена')
                 else:
@@ -63,7 +63,7 @@ def run():
                     record = model.search_record(
                         '1', find_id, table, FILEPATH, compliance=True)
                     user_interface.show_record(*record, table)
-                    if user_inputs.confirm_choice('Вы действительно хотите удалить данную запись?'):
+                    if user_inputs.confirm_choice('Вы действительно хотите удалить данную запись Д/Н?'):
                         model.remove_record(
                             find_id, table, FILEPATH)
                         user_interface.print_message('Запись успешно удалена')
@@ -73,7 +73,7 @@ def run():
             case '4':
                 table = choose_table()
                 user_interface.fields_menu('поиска', table)
-                search_choice = input('-: ')
+                search_choice = input(': ')
                 query = user_inputs.get_random_input('запрос')
                 records = model.search_record(
                     search_choice, query, table, FILEPATH)
@@ -93,12 +93,12 @@ def run():
                         inner_menu = True
                         while inner_menu:
                             user_interface.change_menu()
-                            change_choice = input('-: ')
+                            change_choice = input(': ')
                             match change_choice:
                                 case '1':
                                     user_interface.fields_menu(
                                         'изменения', table, 1)
-                                    field_choice = input('-: ')
+                                    field_choice = input(': ')
                                     new_value = user_inputs.get_random_input(
                                         f'новое значение поля {field_choice}')
                                     updated_record = model.get_updates(

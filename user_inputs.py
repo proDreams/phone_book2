@@ -5,11 +5,17 @@ FLAG = {'yes': ['y', 'ye', 'yes', '', 'да', 'д'],
 
 
 def choice_file_input():
+    """
+    Ввод файла для использования
+    """
     return input(user_interface.choice_file_print())
 
 
 def confirm_choice(text):
-    user_choice = input(f"{text}\n-: ").lower()
+    """
+    Ввод подтверждения действия
+    """
+    user_choice = input(f"{text}\n: ").lower()
     if user_choice in FLAG['yes']:
         return True
     elif user_choice in FLAG['no']:
@@ -19,11 +25,17 @@ def confirm_choice(text):
         return False
 
 
-def ask_fill_input(code, file_name):
-    return confirm_choice(user_interface.errors(code, file_name))
+def ask_fill_input(code):
+    """
+    Возврат подтверждения действия
+    """
+    return confirm_choice(user_interface.errors(code))
 
 
 def get_data_input(table):
+    """
+    Возврат полученных данных
+    """
     headers = {
         'students': ['ученика', user_interface.HEADERS['students'][1:]],
         'classes': ['класса', user_interface.HEADERS['classes']]
@@ -32,4 +44,7 @@ def get_data_input(table):
 
 
 def get_random_input(text):
+    """
+    Возврат данных от пользователя
+    """
     return input(f'Введите {text}: ')

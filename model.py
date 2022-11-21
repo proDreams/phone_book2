@@ -1,5 +1,4 @@
 import sqlite3 as sl
-from os import path
 import user_interface
 import user_inputs
 from logger import LOG
@@ -32,7 +31,9 @@ COLUMNS_SQL = {
 
 
 def db_connect(file_name):
-    'Подключается к базе данных и возвращает объект Connect'
+    """
+    Подключается к базе данных и возвращает объект Connect
+    """
 
     file = f'{file_name}.db'
     try:
@@ -44,9 +45,11 @@ def db_connect(file_name):
 
 
 def execute_query(con, query, data=None):
-    '''Выполняет запрос к базе.
+    """
+    Выполняет запрос к базе.
     Принимает sql запрос и кортеж значений для подстановки в VALUE(?,?) для исключения возможности SQL-инъекции.
-    Возвращает объект Cursor.'''
+    Возвращает объект Cursor.
+    """
 
     with con:
         try:
@@ -68,7 +71,9 @@ def execute_query(con, query, data=None):
 
 @LOG
 def create_table(file_name, table_name='students'):
-    'Создаёт таблицу в базе данных'
+    """
+    Создаёт таблицу в базе данных
+    """
     columns = COLUMNS_SQL[table_name]
     sql_query = f'''CREATE TABLE IF NOT EXISTS '{table_name}'(
                  {columns});'''
@@ -77,7 +82,9 @@ def create_table(file_name, table_name='students'):
 
 @LOG
 def get_data(file_name, table):
-    'Возвращает все записи в таблице'
+    """
+    Возвращает все записи в таблице
+    """
 
     if table == 'students' or table == 'unified':
         order_by = 'surname'
@@ -97,7 +104,9 @@ def get_data(file_name, table):
 
 @LOG
 def add_record(table, data, file_name):
-    'Добавляет новую запись'
+    """
+    Добавляет новую запись
+    """
 
     columns = {
         'students': 'NULL, ?, ?, ?, ?, ?, ?',
@@ -109,7 +118,9 @@ def add_record(table, data, file_name):
 
 @LOG
 def remove_record(s_id, table, file_name):
-    'Удаляет студента'
+    """
+    Удаляет запись
+    """
 
     sql_query = f"DELETE FROM {table} WHERE id=?"
     data = (str(s_id),)
@@ -117,24 +128,10 @@ def remove_record(s_id, table, file_name):
 
 
 @LOG
-def check_file_exist(file_name):
-    'Проверяет наличие файла по указанному пути'
-
-    return path.exists(f'{file_name}.db')
-
-    # if not path.exists(f'{file_name}.db'):
-    #     if user_inputs.ask_fill_input(0, file_name):
-    #         create_table(file_name)
-    #         return True
-    #     else:
-    #         return False
-    # else:
-    #     return True
-
-
-@LOG
 def check_table_exist(file_name, table_name):
-    'Проверяет, существует ли таблица в базе'
+    """
+    Проверяет, существует ли таблица в базе
+    """
 
     sql_query = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';"
     return execute_query(db_connect(file_name), sql_query).fetchall()
@@ -142,7 +139,9 @@ def check_table_exist(file_name, table_name):
 
 @LOG
 def search_record(field_ind, query, table, file_name, compliance=False):
-    'Ищет запись в базе по параметру'
+    """
+    Ищет запись в базе по параметру
+    """
 
     field = FIELDS[table][int(field_ind) - 1]
     if compliance:
@@ -154,7 +153,9 @@ def search_record(field_ind, query, table, file_name, compliance=False):
 
 @LOG
 def check_id(r_id, table, file_name):
-    'Проверяет, есть ли запись в введенным id в базе'
+    """
+    Проверяет, есть ли запись в введенным id в базе
+    """
 
     sql_query = f"SELECT * FROM {table} WHERE id='{r_id}'; "
     return execute_query(db_connect(file_name), sql_query).fetchall()
@@ -162,7 +163,9 @@ def check_id(r_id, table, file_name):
 
 @LOG
 def get_updates(r_id, field_ind, value, table, file_name):
-    'Формирует исправленную запись'
+    """
+    Формирует исправленную запись
+    """
 
     record = list(*search_record(1, r_id, table, file_name, compliance=True))
     record[int(field_ind)] = f'>>> {value} <<<'
@@ -171,9 +174,11 @@ def get_updates(r_id, field_ind, value, table, file_name):
 
 @LOG
 def change_field(r_id, field_ind, value, table, file_name):
-    'Меняет поле записи'
+    """
+    Меняет поле записи
+    """
 
     field = FIELDS[table][int(field_ind)]
-    sql_query = "UPDATE {table} SET {field} = '{value}' WHERE id='{r_id}'"\
+    sql_query = "UPDATE {table} SET {field} = '{value}' WHERE id='{r_id}'" \
         .format(table=table, field=field, value=value, r_id=r_id)
     execute_query(db_connect(file_name), sql_query)
