@@ -21,18 +21,14 @@ def confirm_choice(text):
 
 def ask_fill_input(code, file_name):
     return confirm_choice(user_interface.errors(code, file_name))
-    # user_choice = input(user_interface.errors(code, file_name)).lower()
-    # if user_choice in FLAG['yes']:
-    #     return True
-    # elif user_choice in FLAG['no']:
-    #     return False
-    # else:
-    #     user_interface.print_errors(2)
-    #     return False
 
 
-def get_student_input():
-    return map(lambda x: input(f'{x} ученика: '), user_interface.STUDENT_HEADERS[1:])
+def get_data_input(table):
+    headers = {
+        'students': ['ученика', user_interface.HEADERS['students'][1:]],
+        'classes': ['класса', user_interface.HEADERS['classes']]
+    }
+    return tuple(map(lambda x: input(f'{x} {headers[table][0]}: '), headers[table][1]))
 
 
 def get_random_input(text):
