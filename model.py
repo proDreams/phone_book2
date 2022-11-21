@@ -12,7 +12,7 @@ TABLES = {
 
 FIELDS = {
     'students': ['id', 'surname', 'name', 'patronym',
-                'birthdate', 'phone', 'class'],
+                 'birthdate', 'phone', 'class'],
     'classes': ['id', 'room', 'teacher']
 }
 
@@ -83,7 +83,8 @@ def get_data(file_name, table):
         order_by = 'surname'
     elif table == 'classes':
         order_by = 'id'
-    sql_query = "SELECT * FROM {table} ORDER BY {order_by}".format(table=table, order_by=order_by)
+    sql_query = "SELECT * FROM {table} ORDER BY {order_by}".format(
+        table=table, order_by=order_by)
     if table == 'unified':
         sql_query = """SELECT l.surname, l.name, l.patronym, l.birthdate, l.phone, l.class, r.room, r.teacher
                         FROM students l
@@ -119,27 +120,24 @@ def remove_record(s_id, table, file_name):
 def check_file_exist(file_name):
     'Проверяет наличие файла по указанному пути'
 
-    if not path.exists(f'{file_name}.db'):
-        if user_inputs.ask_fill_input(0, file_name):
-            create_table(file_name)
-            return True
-        else:
-            return False
-    else:
-        return True
+    return path.exists(f'{file_name}.db')
+
+    # if not path.exists(f'{file_name}.db'):
+    #     if user_inputs.ask_fill_input(0, file_name):
+    #         create_table(file_name)
+    #         return True
+    #     else:
+    #         return False
+    # else:
+    #     return True
 
 
 @LOG
 def check_table_exist(file_name, table_name):
-    'Проверяет, существует ли таблица в базе и создаёт её, если нет'
+    'Проверяет, существует ли таблица в базе'
 
     sql_query = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';"
-    check = execute_query(db_connect(file_name), sql_query).fetchall()
-    if not check:
-        user_interface.print_errors(1, file_name)
-        create_table(file_name, table_name)
-        user_interface.print_notifications(0)
-    return True
+    return execute_query(db_connect(file_name), sql_query).fetchall()
 
 
 @LOG
@@ -179,17 +177,3 @@ def change_field(r_id, field_ind, value, table, file_name):
     sql_query = "UPDATE {table} SET {field} = '{value}' WHERE id='{r_id}'"\
         .format(table=table, field=field, value=value, r_id=r_id)
     execute_query(db_connect(file_name), sql_query)
-
-
-@LOG
-def choose_table(unified=False):
-    'Позволяет пользователю выбрать таблицу'
-
-    choices = ['1', '2', '3'] if unified else ['1', '2']
-    table_choice = ''
-    while table_choice not in choices:
-        user_interface.print_tables(unified=unified)
-        table_choice = input('-: ')
-        if table_choice not in choices:
-            user_interface.print_message('Неверный ввод')
-    return TABLES[table_choice]
