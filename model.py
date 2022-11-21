@@ -122,15 +122,6 @@ def check_file_exist(file_name):
 
     return path.exists(f'{file_name}.db')
 
-    # if not path.exists(f'{file_name}.db'):
-    #     if user_inputs.ask_fill_input(0, file_name):
-    #         create_table(file_name)
-    #         return True
-    #     else:
-    #         return False
-    # else:
-    #     return True
-
 
 @LOG
 def check_table_exist(file_name, table_name):
