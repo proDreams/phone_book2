@@ -30,15 +30,13 @@ COLUMNS_SQL = {
 }
 
 
-def db_connect(file_name):
+def db_connect(file):
     """
     Подключается к базе данных и возвращает объект Connect
     """
 
-    file = f'{file_name}.db'
     try:
-        con = sl.connect(file)
-        return con
+        return sl.connect(file)
     except sl.Error as e:
         # TODO записать в log вместо консоли перед продакшеном
         print(f'Ошибка: {e}')
@@ -51,8 +49,8 @@ def execute_query(con, query, data=None):
     Возвращает объект Cursor.
     """
 
-    with con:
-        try:
+    try:
+        with con:
             if data:
                 if isinstance(data, list):
                     res = con.executemany(query, data)
@@ -61,27 +59,27 @@ def execute_query(con, query, data=None):
             else:
                 res = con.execute(query)
             return res
-        except sl.Error as e:
-            # TODO записать в log вместо консоли перед продакшеном
-            if str(e) == "UNIQUE constraint failed: classes.id":
-                user_interface.print_message('Такой класс уже есть в базе')
-            else:
-                print(f'Ошибка: {e}')
+    except sl.Error as e:
+        # TODO записать в log вместо консоли перед продакшеном
+        if str(e) == "UNIQUE constraint failed: classes.id":
+            user_interface.print_message('Такой класс уже есть в базе')
+        else:
+            print(f'Ошибка: {e}')
 
 
 @LOG
-def create_table(file_name, table_name='students'):
+def create_table(con, table_name='students'):
     """
     Создаёт таблицу в базе данных
     """
     columns = COLUMNS_SQL[table_name]
     sql_query = f'''CREATE TABLE IF NOT EXISTS '{table_name}'(
                  {columns});'''
-    execute_query(db_connect(file_name), sql_query)
+    execute_query(con, sql_query)
 
 
 @LOG
-def get_data(file_name, table):
+def get_data(con, table):
     """
     Возвращает все записи в таблице
     """
@@ -98,12 +96,12 @@ def get_data(file_name, table):
                         LEFT JOIN classes r
                         ON l.class = r.id
                         ORDER BY {order_by};""".format(order_by=order_by)
-    res = execute_query(db_connect(file_name), sql_query)
+    res = execute_query(con, sql_query)
     return res
 
 
 @LOG
-def add_record(table, data, file_name):
+def add_record(table, data, con):
     """
     Добавляет новую запись
     """
@@ -113,32 +111,32 @@ def add_record(table, data, file_name):
         'classes': '?, ?, ?'
     }
     sql_query = f"INSERT INTO {table} VALUES({columns[table]})"
-    return execute_query(db_connect(file_name), sql_query, data)
+    return execute_query(con, sql_query, data)
 
 
 @LOG
-def remove_record(s_id, table, file_name):
+def remove_record(s_id, table, con):
     """
     Удаляет запись
     """
 
     sql_query = f"DELETE FROM {table} WHERE id=?"
     data = (str(s_id),)
-    execute_query(db_connect(file_name), sql_query, data)
+    execute_query(con, sql_query, data)
 
 
 @LOG
-def check_table_exist(file_name, table_name):
+def check_table_exist(con, table_name):
     """
     Проверяет, существует ли таблица в базе
     """
-
-    sql_query = f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}';"
-    return execute_query(db_connect(file_name), sql_query).fetchall()
+    data = (table_name,)
+    sql_query = f"SELECT name FROM sqlite_master WHERE type='table' AND name=?;"
+    return execute_query(con, sql_query, data).fetchall()
 
 
 @LOG
-def search_record(field_ind, query, table, file_name, compliance=False):
+def search_record(field_ind, query, table, con, compliance=False):
     """
     Ищет запись в базе по параметру
     """
@@ -148,37 +146,38 @@ def search_record(field_ind, query, table, file_name, compliance=False):
         sql_query = f"SELECT * FROM {table} WHERE {field}='{query}'; "
     else:
         sql_query = f"SELECT * FROM {table} WHERE {field} LIKE '%{query}%'; "
-    return execute_query(db_connect(file_name), sql_query).fetchall()
+    return execute_query(con, sql_query).fetchall()
 
 
 @LOG
-def check_id(r_id, table, file_name):
+def check_id(r_id, table, con):
     """
     Проверяет, есть ли запись в введенным id в базе
     """
 
-    sql_query = f"SELECT * FROM {table} WHERE id='{r_id}'; "
-    return execute_query(db_connect(file_name), sql_query).fetchall()
+    data = (str(r_id),)
+    sql_query = f"SELECT * FROM {table} WHERE id=?; "
+    return execute_query(con, sql_query, data).fetchall()
 
 
 @LOG
-def get_updates(r_id, field_ind, value, table, file_name):
+def get_updates(r_id, field_ind, value, table, con):
     """
     Формирует исправленную запись
     """
 
-    record = list(*search_record(1, r_id, table, file_name, compliance=True))
+    record = list(*search_record(1, r_id, table, con, compliance=True))
     record[int(field_ind)] = f'>>> {value} <<<'
     return record
 
 
 @LOG
-def change_field(r_id, field_ind, value, table, file_name):
+def change_field(r_id, field_ind, value, table, con):
     """
     Меняет поле записи
     """
 
+    data = (str(value), str(r_id),)
     field = FIELDS[table][int(field_ind)]
-    sql_query = "UPDATE {table} SET {field} = '{value}' WHERE id='{r_id}'" \
-        .format(table=table, field=field, value=value, r_id=r_id)
-    execute_query(db_connect(file_name), sql_query)
+    sql_query = f"UPDATE {table} SET {field} = ? WHERE id=?"
+    execute_query(con, sql_query, data)
