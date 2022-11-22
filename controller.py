@@ -3,7 +3,6 @@ import user_inputs
 import model as m
 
 DB_FILENAME = 'school.db'
-con = m.db_connect(DB_FILENAME)
 
 
 def choose_table(unified=False):
@@ -22,6 +21,7 @@ def choose_table(unified=False):
 
 
 def run():
+    con = m.db_connect(DB_FILENAME)
     ui.print_message('Добро пожаловать базу учеников!')
 
     for table in ['students', 'classes']:
