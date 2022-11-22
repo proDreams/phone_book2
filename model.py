@@ -29,20 +29,24 @@ COLUMNS_SQL = {
                  teacher TEXT NOT NULL"""
 }
 
+con = None
+
 
 def db_connect(file):
     """
     Подключается к базе данных и возвращает объект Connect
     """
 
+    global con
+
     try:
-        return sl.connect(file)
+        con = sl.connect(file)
     except sl.Error as e:
         # TODO записать в log вместо консоли перед продакшеном
         print(f'Ошибка: {e}')
 
 
-def execute_query(con, query, data=None):
+def execute_query(query, data=None):
     """
     Выполняет запрос к базе.
     Принимает sql запрос и кортеж значений для подстановки в VALUE(?,?) для исключения возможности SQL-инъекции.
@@ -68,18 +72,18 @@ def execute_query(con, query, data=None):
 
 
 @LOG
-def create_table(con, table_name='students'):
+def create_table(table_name='students'):
     """
     Создаёт таблицу в базе данных
     """
     columns = COLUMNS_SQL[table_name]
     sql_query = f'''CREATE TABLE IF NOT EXISTS '{table_name}'(
                  {columns});'''
-    execute_query(con, sql_query)
+    execute_query(sql_query)
 
 
 @LOG
-def get_data(con, table):
+def get_data(table):
     """
     Возвращает все записи в таблице
     """
@@ -96,12 +100,12 @@ def get_data(con, table):
                         LEFT JOIN classes r
                         ON l.class = r.id
                         ORDER BY {order_by};""".format(order_by=order_by)
-    res = execute_query(con, sql_query)
+    res = execute_query(sql_query)
     return res
 
 
 @LOG
-def add_record(table, data, con):
+def add_record(table, data):
     """
     Добавляет новую запись
     """
@@ -111,32 +115,32 @@ def add_record(table, data, con):
         'classes': '?, ?, ?'
     }
     sql_query = f"INSERT INTO {table} VALUES({columns[table]})"
-    return execute_query(con, sql_query, data)
+    return execute_query(sql_query, data)
 
 
 @LOG
-def remove_record(s_id, table, con):
+def remove_record(s_id, table):
     """
     Удаляет запись
     """
 
     sql_query = f"DELETE FROM {table} WHERE id=?"
     data = (str(s_id),)
-    execute_query(con, sql_query, data)
+    execute_query(sql_query, data)
 
 
 @LOG
-def check_table_exist(con, table_name):
+def check_table_exist(table_name):
     """
     Проверяет, существует ли таблица в базе
     """
     data = (table_name,)
     sql_query = f"SELECT name FROM sqlite_master WHERE type='table' AND name=?;"
-    return execute_query(con, sql_query, data).fetchall()
+    return execute_query(sql_query, data).fetchall()
 
 
 @LOG
-def search_record(field_ind, query, table, con, compliance=False):
+def search_record(field_ind, query, table, compliance=False):
     """
     Ищет запись в базе по параметру
     """
@@ -146,33 +150,33 @@ def search_record(field_ind, query, table, con, compliance=False):
         sql_query = f"SELECT * FROM {table} WHERE {field}='{query}'; "
     else:
         sql_query = f"SELECT * FROM {table} WHERE {field} LIKE '%{query}%'; "
-    return execute_query(con, sql_query).fetchall()
+    return execute_query(sql_query).fetchall()
 
 
 @LOG
-def check_id(r_id, table, con):
+def check_id(r_id, table):
     """
     Проверяет, есть ли запись в введенным id в базе
     """
 
     data = (str(r_id),)
     sql_query = f"SELECT * FROM {table} WHERE id=?; "
-    return execute_query(con, sql_query, data).fetchall()
+    return execute_query(sql_query, data).fetchall()
 
 
 @LOG
-def get_updates(r_id, field_ind, value, table, con):
+def get_updates(r_id, field_ind, value, table):
     """
     Формирует исправленную запись
     """
 
-    record = list(*search_record(1, r_id, table, con, compliance=True))
+    record = list(*search_record(1, r_id, table, compliance=True))
     record[int(field_ind)] = f'>>> {value} <<<'
     return record
 
 
 @LOG
-def change_field(r_id, field_ind, value, table, con):
+def change_field(r_id, field_ind, value, table):
     """
     Меняет поле записи
     """
@@ -180,4 +184,4 @@ def change_field(r_id, field_ind, value, table, con):
     data = (str(value), str(r_id),)
     field = FIELDS[table][int(field_ind)]
     sql_query = f"UPDATE {table} SET {field} = ? WHERE id=?"
-    execute_query(con, sql_query, data)
+    execute_query(sql_query, data)

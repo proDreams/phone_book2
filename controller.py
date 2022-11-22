@@ -21,12 +21,12 @@ def choose_table(unified=False):
 
 
 def run():
-    con = m.db_connect(DB_FILENAME)
+    m.db_connect(DB_FILENAME)
     ui.print_message('Добро пожаловать базу учеников!')
 
     for table in ['students', 'classes']:
-        if not m.check_table_exist(con, table):
-            m.create_table(con, table)
+        if not m.check_table_exist(table):
+            m.create_table(table)
 
     while True:
         ui.new_line()
@@ -35,7 +35,7 @@ def run():
         match user_choice:
             case '1':
                 table = choose_table(unified=True)
-                data = m.get_data(con, table)
+                data = m.get_data(table)
                 ui.show_table(data, table)
 
             case '2':
@@ -44,7 +44,7 @@ def run():
                 record = user_inputs.get_data_input(table)
                 ui.show_record(record, table)
                 if user_inputs.confirm_choice('Внести эту запись Д/Н?'):
-                    m.add_record(table, record, con)
+                    m.add_record(table, record)
                     ui.print_message('Запись успешно внесена')
                 else:
                     ui.print_message('Запись не внесена')
@@ -53,16 +53,16 @@ def run():
                 table = choose_table()
                 find_id = user_inputs.get_random_input(
                     'id нужной записи')
-                if not m.check_id(find_id, table, con):
+                if not m.check_id(find_id, table):
                     ui.print_message(
                         f'Запись c id "{find_id}" отсутствует')
                 else:
                     record = m.search_record(
-                        '1', find_id, table, con, compliance=True)
+                        '1', find_id, table, compliance=True)
                     ui.show_record(*record, table)
                     if user_inputs.confirm_choice('Вы действительно хотите удалить данную запись Д/Н?'):
                         m.remove_record(
-                            find_id, table, con)
+                            find_id, table)
                         ui.print_message('Запись успешно удалена')
                     else:
                         ui.print_message(
@@ -74,7 +74,7 @@ def run():
                 search_choice = input(': ')
                 query = user_inputs.get_random_input('запрос')
                 records = m.search_record(
-                    search_choice, query, table, con)
+                    search_choice, query, table)
                 if records:
                     ui.print_message(
                         'Найдены следующие записи:')
@@ -84,7 +84,7 @@ def run():
                             'id нужной записи')
                     else:
                         find_id = records[0][0]
-                    if not m.check_id(find_id, table, con):
+                    if not m.check_id(find_id, table):
                         ui.print_message(
                             f'Запись c id "{find_id}" отсутствует')
                     else:
@@ -100,12 +100,12 @@ def run():
                                     new_value = user_inputs.get_random_input(
                                         f'новое значение поля {field_choice}')
                                     updated_record = m.get_updates(
-                                        find_id, field_choice, new_value, table, con)
+                                        find_id, field_choice, new_value, table)
                                     ui.show_record(
                                         updated_record, table)
                                     if user_inputs.confirm_choice('Внести эти изменения?'):
                                         m.change_field(
-                                            find_id, field_choice, new_value, table, con)
+                                            find_id, field_choice, new_value, table)
                                         ui.print_message(
                                             'Изменения успешно внесены')
                                     else:
@@ -114,11 +114,11 @@ def run():
                                     inner_menu = False
                                 case '2':
                                     record = m.search_record(
-                                        '1', find_id, table, con, compliance=True)
+                                        '1', find_id, table, compliance=True)
                                     ui.show_record(*record, table)
                                     if user_inputs.confirm_choice('Вы действительно хотите удалить данную запись?'):
                                         m.remove_record(
-                                            find_id, table, con)
+                                            find_id, table)
                                         ui.print_message(
                                             'Запись успешно удалена')
                                     else:
@@ -134,7 +134,7 @@ def run():
                     ui.print_message(
                         f'Записи по запросу "{query}" отсутствуют')
             case '0':
-                con.close()
+                m.con.close()
                 ui.print_message(f'Бай Бай!')
                 break
             case _:
